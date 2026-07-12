@@ -30,6 +30,13 @@ const formatDate = (d) => {
   return new Date(d).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
 };
 
+const getResumeLink = (url) => {
+  if (!url) return '';
+  if (url.startsWith('http://') || url.startsWith('https://')) return url;
+  const baseUrl = import.meta.env.VITE_API_URL ? import.meta.env.VITE_API_URL.replace('/api', '') : 'http://localhost:5001';
+  return `${baseUrl}${url}`;
+};
+
 const EmployerDashboard = () => {
   const { user, updateUser } = useAuth();
   const [activeTab, setActiveTab] = useState('jobs');
@@ -372,7 +379,7 @@ const EmployerDashboard = () => {
                         <td><StatusBadge status={app.status || 'applied'} /></td>
                         <td>
                           {(app.resumeUrl || app.applicant?.resumeUrl) ? (
-                            <a href={app.resumeUrl || app.applicant?.resumeUrl} target="_blank" rel="noreferrer" className="resume-link">
+                            <a href={getResumeLink(app.resumeUrl || app.applicant?.resumeUrl)} target="_blank" rel="noreferrer" className="resume-link">
                               <LuExternalLink size={14} /> View
                             </a>
                           ) : (

@@ -179,7 +179,15 @@ export const updateProfile = async (req, res) => {
       const seekerFields = ['bio', 'skills', 'experience', 'education', 'resumeUrl'];
       seekerFields.forEach((field) => {
         if (req.body[field] !== undefined) {
-          user[field] = req.body[field];
+          let val = req.body[field];
+          if (typeof val === 'string' && ['skills', 'experience', 'education'].includes(field)) {
+            try {
+              val = JSON.parse(val);
+            } catch (err) {
+              // Use raw value if parsing fails
+            }
+          }
+          user[field] = val;
         }
       });
     }

@@ -45,6 +45,17 @@ const JobDetailPage = () => {
   const [saved, setSaved] = useState(false);
   const [applyForm, setApplyForm] = useState({ coverLetter: '', resumeUrl: '' });
   const [activeTab, setActiveTab] = useState('description');
+  const [resumeSource, setResumeSource] = useState('profile');
+  const [resumeFile, setResumeFile] = useState(null);
+
+  // Update default resume source when user details change
+  useEffect(() => {
+    if (user?.resumeUrl) {
+      setResumeSource('profile');
+    } else {
+      setResumeSource('file');
+    }
+  }, [user]);
 
   useEffect(() => {
     const fetch = async () => {
@@ -76,12 +87,34 @@ const JobDetailPage = () => {
   const handleApply = async (e) => {
     e.preventDefault();
     if (!user) { toast.error('Please login to apply'); return; }
+
+    if (resumeSource === 'file' && !resumeFile) {
+      toast.error('Please select a resume PDF file to upload');
+      return;
+    }
+    if (resumeSource === 'url' && !applyForm.resumeUrl.trim()) {
+      toast.error('Please enter your resume URL');
+      return;
+    }
+
     setApplying(true);
     try {
-      await applyToJob(id, applyForm);
+      const formData = new FormData();
+      formData.append('coverLetter', applyForm.coverLetter);
+
+      if (resumeSource === 'profile') {
+        formData.append('resumeUrl', user.resumeUrl || '');
+      } else if (resumeSource === 'url') {
+        formData.append('resumeUrl', applyForm.resumeUrl);
+      } else if (resumeSource === 'file') {
+        formData.append('resume', resumeFile);
+      }
+
+      await applyToJob(id, formData);
       setApplied(true);
       setApplyModalOpen(false);
-      toast.success('Application submitted!');
+      toast.success('Application submitted successfully!');
+      setResumeFile(null);
     } catch (err) {
       toast.error(err.response?.data?.message || 'Application failed');
     } finally {
@@ -323,13 +356,63 @@ const JobDetailPage = () => {
             />
           </div>
           <div className="form-group">
-            <label>Resume URL</label>
-            <input
-              type="url"
-              placeholder="https://drive.google.com/your-resume"
-              value={applyForm.resumeUrl}
-              onChange={(e) => setApplyForm({ ...applyForm, resumeUrl: e.target.value })}
-            />
+            <label>Resume Source</label>
+            <div style={{ display: 'flex', gap: '0.75rem', marginBottom: '0.75rem', flexDirection: 'column' }}>
+              {user?.resumeUrl && (
+                <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer' }}>
+                  <input
+                    type="radio"
+                    name="resumeSource"
+                    value="profile"
+                    checked={resumeSource === 'profile'}
+                    onChange={() => setResumeSource('profile')}
+                  />
+                  <span>Use saved resume from profile</span>
+                </label>
+              )}
+              <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer' }}>
+                <input
+                  type="radio"
+                  name="resumeSource"
+                  value="file"
+                  checked={resumeSource === 'file'}
+                  onChange={() => setResumeSource('file')}
+                />
+                <span>Upload a new resume PDF</span>
+              </label>
+              <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer' }}>
+                <input
+                  type="radio"
+                  name="resumeSource"
+                  value="url"
+                  checked={resumeSource === 'url'}
+                  onChange={() => setResumeSource('url')}
+                />
+                <span>Provide a link/URL to your resume</span>
+              </label>
+            </div>
+
+            {resumeSource === 'file' && (
+              <div style={{ marginTop: '0.5rem' }}>
+                <input
+                  type="file"
+                  accept="application/pdf"
+                  onChange={(e) => setResumeFile(e.target.files[0])}
+                  className="file-input"
+                />
+              </div>
+            )}
+
+            {resumeSource === 'url' && (
+              <div style={{ marginTop: '0.5rem' }}>
+                <input
+                  type="url"
+                  placeholder="https://drive.google.com/your-resume"
+                  value={applyForm.resumeUrl}
+                  onChange={(e) => setApplyForm({ ...applyForm, resumeUrl: e.target.value })}
+                />
+              </div>
+            )}
           </div>
           <button type="submit" className="btn btn-primary btn-lg btn-block" disabled={applying}>
             {applying ? <span className="spinner-sm" /> : <><LuSend size={16} /> Submit Application</>}

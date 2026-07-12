@@ -19,6 +19,13 @@ const formatDate = (d) => {
   return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
 };
 
+const getResumeLink = (url) => {
+  if (!url) return '';
+  if (url.startsWith('http://') || url.startsWith('https://')) return url;
+  const baseUrl = import.meta.env.VITE_API_URL ? import.meta.env.VITE_API_URL.replace('/api', '') : 'http://localhost:5001';
+  return `${baseUrl}${url}`;
+};
+
 const SeekerDashboard = () => {
   const { user, updateUser } = useAuth();
   const [searchParams] = useSearchParams();
@@ -43,6 +50,7 @@ const SeekerDashboard = () => {
   });
   const [skillInput, setSkillInput] = useState('');
   const [saving, setSaving] = useState(false);
+  const [resumeFile, setResumeFile] = useState(null);
 
   useEffect(() => {
     if (activeTab === 'applications') fetchApplications();
@@ -134,7 +142,26 @@ const SeekerDashboard = () => {
     e.preventDefault();
     setSaving(true);
     try {
-      await updateUser(profile);
+      const formData = new FormData();
+      formData.append('name', profile.name);
+      formData.append('email', profile.email);
+      formData.append('phone', profile.phone);
+      formData.append('bio', profile.bio);
+      formData.append('skills', JSON.stringify(profile.skills));
+      formData.append('experience', JSON.stringify(profile.experience));
+      formData.append('education', JSON.stringify(profile.education));
+      formData.append('resumeUrl', profile.resumeUrl);
+
+      if (resumeFile) {
+        formData.append('resume', resumeFile);
+      }
+
+      const updated = await updateUser(formData);
+      setProfile((prev) => ({
+        ...prev,
+        resumeUrl: updated.resumeUrl || prev.resumeUrl,
+      }));
+      setResumeFile(null);
     } catch (err) {
       toast.error(err.response?.data?.message || 'Failed to update profile');
     } finally {
@@ -309,9 +336,16 @@ const SeekerDashboard = () => {
                   <label>Phone</label>
                   <input type="tel" placeholder="+1 234 567 890" value={profile.phone} onChange={(e) => setProfile({ ...profile, phone: e.target.value })} />
                 </div>
-                <div className="form-group">
-                  <label>Resume URL</label>
-                  <input type="url" placeholder="https://..." value={profile.resumeUrl} onChange={(e) => setProfile({ ...profile, resumeUrl: e.target.value })} />
+                 <div className="form-group">
+                  <label>Resume (PDF File)</label>
+                  <input type="file" accept="application/pdf" onChange={(e) => setResumeFile(e.target.files[0])} className="file-input" />
+                  {profile.resumeUrl && (
+                    <div style={{ marginTop: '0.5rem', fontSize: '0.85rem' }}>
+                      <a href={getResumeLink(profile.resumeUrl)} target="_blank" rel="noreferrer" style={{ color: 'var(--primary-color)', textDecoration: 'underline' }}>
+                        View current resume PDF
+                      </a>
+                    </div>
+                  )}
                 </div>
               </div>
 
