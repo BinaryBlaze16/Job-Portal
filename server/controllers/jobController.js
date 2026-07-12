@@ -34,7 +34,8 @@ export const getJobs = async (req, res) => {
 
     // Job type filter
     if (jobType) {
-      query.jobType = jobType;
+      const types = jobType.split(',').map((t) => t.trim().toLowerCase());
+      query.jobType = { $in: types };
     }
 
     // Category filter
@@ -43,8 +44,10 @@ export const getJobs = async (req, res) => {
     }
 
     // Experience level filter
-    if (experienceLevel) {
-      query.experienceLevel = experienceLevel;
+    const expQuery = experienceLevel || req.query.experience;
+    if (expQuery) {
+      const levels = expQuery.split(',').map((l) => l.trim().toLowerCase());
+      query.experienceLevel = { $in: levels };
     }
 
     // Salary range filters

@@ -37,6 +37,7 @@ const jobSchema = new mongoose.Schema(
     jobType: {
       type: String,
       enum: ['full-time', 'part-time', 'remote', 'internship', 'contract'],
+      set: (v) => (typeof v === 'string' ? v.toLowerCase() : v),
     },
     category: {
       type: String,
@@ -45,6 +46,7 @@ const jobSchema = new mongoose.Schema(
     experienceLevel: {
       type: String,
       enum: ['entry', 'mid', 'senior', 'lead'],
+      set: (v) => (typeof v === 'string' ? v.toLowerCase() : v),
     },
     skills: [
       {
