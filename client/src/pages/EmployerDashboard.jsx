@@ -355,6 +355,7 @@ const EmployerDashboard = () => {
                     <tr>
                       <th>Name</th>
                       <th>Email</th>
+                      <th>Phone</th>
                       <th>Applied</th>
                       <th>Status</th>
                       <th>Resume</th>
@@ -366,6 +367,7 @@ const EmployerDashboard = () => {
                       <tr key={app._id}>
                         <td className="table-title">{app.applicant?.name || app.name || 'Applicant'}</td>
                         <td className="text-secondary">{app.applicant?.email || app.email || ''}</td>
+                        <td className="text-secondary">{app.applicant?.phone || app.phone || 'N/A'}</td>
                         <td className="text-muted">{formatDate(app.createdAt || app.appliedAt)}</td>
                         <td><StatusBadge status={app.status || 'applied'} /></td>
                         <td>
