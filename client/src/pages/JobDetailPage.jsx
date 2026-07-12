@@ -359,34 +359,37 @@ const JobDetailPage = () => {
             <label>Resume Source</label>
             <div style={{ display: 'flex', gap: '0.75rem', marginBottom: '0.75rem', flexDirection: 'column' }}>
               {user?.resumeUrl && (
-                <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer' }}>
+                <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer', margin: 0, fontWeight: 'normal', color: 'var(--text-primary)' }}>
                   <input
                     type="radio"
                     name="resumeSource"
                     value="profile"
                     checked={resumeSource === 'profile'}
                     onChange={() => setResumeSource('profile')}
+                    style={{ width: 'auto', margin: 0 }}
                   />
                   <span>Use saved resume from profile</span>
                 </label>
               )}
-              <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer' }}>
+              <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer', margin: 0, fontWeight: 'normal', color: 'var(--text-primary)' }}>
                 <input
                   type="radio"
                   name="resumeSource"
                   value="file"
                   checked={resumeSource === 'file'}
                   onChange={() => setResumeSource('file')}
+                  style={{ width: 'auto', margin: 0 }}
                 />
                 <span>Upload a new resume PDF</span>
               </label>
-              <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer' }}>
+              <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer', margin: 0, fontWeight: 'normal', color: 'var(--text-primary)' }}>
                 <input
                   type="radio"
                   name="resumeSource"
                   value="url"
                   checked={resumeSource === 'url'}
                   onChange={() => setResumeSource('url')}
+                  style={{ width: 'auto', margin: 0 }}
                 />
                 <span>Provide a link/URL to your resume</span>
               </label>
