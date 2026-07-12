@@ -504,9 +504,19 @@ const EmployerDashboard = () => {
                   </span>
                 ))}
               </div>
-              <form onSubmit={handleAddSkill} className="tag-input-form">
-                <input placeholder="Type skill and press Enter..." value={skillInput} onChange={(e) => setSkillInput(e.target.value)} />
-              </form>
+              <div className="tag-input-form">
+                <input
+                  placeholder="Type skill and press Enter..."
+                  value={skillInput}
+                  onChange={(e) => setSkillInput(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') {
+                      e.preventDefault();
+                      handleAddSkill(e);
+                    }
+                  }}
+                />
+              </div>
             </div>
           </div>
 
